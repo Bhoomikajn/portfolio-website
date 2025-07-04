@@ -121,6 +121,442 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Surprise Section Functionality
+    const surpriseBtn = document.getElementById('surpriseBtn');
+    const newSurpriseBtn = document.getElementById('newSurpriseBtn');
+    const surpriseContent = document.getElementById('surpriseContent');
+
+    // API Functions for dynamic content
+    async function fetchRandomQuote() {
+        try {
+            // Using multiple APIs as fallbacks
+            const apis = [
+                'https://api.quotable.io/random',
+                'https://quotegarden.herokuapp.com/api/v3/quotes/random',
+                'https://api.adviceslip.com/advice'
+            ];
+            
+            // Try Quotable API first
+            const response = await fetch(apis[0]);
+            if (response.ok) {
+                const data = await response.json();
+                return { text: data.content, author: data.author };
+            }
+            
+            // Fallback to hardcoded quotes if API fails
+            const fallbackQuotes = [
+                { text: "Success is not final, failure is not fatal: It is the courage to continue that counts.", author: "Winston S. Churchill" },
+                { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+                { text: "Innovation distinguishes between a leader and a follower.", author: "Steve Jobs" },
+                { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+                { text: "In the middle of difficulty lies opportunity.", author: "Albert Einstein" },
+                { text: "Code is like humor. When you have to explain it, it's bad.", author: "Cory House" }
+            ];
+            return fallbackQuotes[Math.floor(Math.random() * fallbackQuotes.length)];
+        } catch (error) {
+            // Return fallback quote if all APIs fail
+            return { text: "The only impossible journey is the one you never begin.", author: "Tony Robbins" };
+        }
+    }
+
+    async function fetchRandomRiddle() {
+        try {
+            // Using riddle APIs or creating dynamic riddles
+            const response = await fetch('https://riddles-api.vercel.app/random');
+            if (response.ok) {
+                const data = await response.json();
+                return { question: data.riddle, answer: data.answer };
+            }
+            
+            // Fallback to hardcoded riddles if API fails
+            const fallbackRiddles = [
+                { question: "What has keys but can't open locks?", answer: "A Piano 🎹" },
+                { question: "I am not alive, but I grow; I don't have lungs, but I need air; I don't have a mouth, but water kills me. What am I?", answer: "Fire 🔥" },
+                { question: "What gets wetter as it dries?", answer: "A towel 🏖️" },
+                { question: "What has a head and a tail but no body?", answer: "A coin 🪙" },
+                { question: "I'm tall when I'm young, and short when I'm old. What am I?", answer: "A candle 🕯️" },
+                { question: "What has hands but can't clap?", answer: "A clock ⏰" },
+                { question: "What comes once in a minute, twice in a moment, but never in a thousand years?", answer: "The letter M 📝" },
+                { question: "I have cities, but no houses. I have mountains, but no trees. I have water, but no fish. What am I?", answer: "A map 🗺️" },
+                { question: "What starts with T, ends with T, and has T in it?", answer: "A teapot 🫖" },
+                { question: "The more you take, the more you leave behind. What am I?", answer: "Footsteps 👣" }
+            ];
+            return fallbackRiddles[Math.floor(Math.random() * fallbackRiddles.length)];
+        } catch (error) {
+            // Return fallback riddle if API fails
+            return { question: "What has keys but can't open locks?", answer: "A Piano 🎹" };
+        }
+    }
+    
+    async function fetchRandomJoke() {
+        try {
+            const response = await fetch('https://official-joke-api.appspot.com/random_joke');
+            if (response.ok) {
+                const data = await response.json();
+                return { setup: data.setup, punchline: data.punchline + ' 😂' };
+            }
+            
+            // Fallback jokes
+            const fallbackJokes = [
+                { setup: "Why don't skeletons fight each other?", punchline: "They don't have the guts! 💀" },
+                { setup: "Why do programmers prefer dark mode?", punchline: "Because light attracts bugs! 🐛" },
+                { setup: "Why did the developer go broke?", punchline: "Because he used up all his cache! 💸" },
+                { setup: "How many programmers does it take to change a light bulb?", punchline: "None. That's a hardware problem! 💡" }
+            ];
+            return fallbackJokes[Math.floor(Math.random() * fallbackJokes.length)];
+        } catch (error) {
+            return { setup: "Why do programmers prefer dark mode?", punchline: "Because light attracts bugs! 🐛" };
+        }
+    }
+    
+    async function fetchRandomFact() {
+        try {
+            const response = await fetch('https://uselessfacts.jsph.pl/random.json?language=en');
+            if (response.ok) {
+                const data = await response.json();
+                return data.text;
+            }
+            
+            // Fallback facts
+            const fallbackFacts = [
+                "The first computer bug was an actual bug - a moth trapped in a computer in 1947!",
+                "Google's original name was 'Backrub'.",
+                "The '@' symbol was used for the first time in an email in 1971.",
+                "YouTube was originally designed as a dating site.",
+                "The first 1GB hard drive weighed over 550 pounds and cost $40,000 in 1980!"
+            ];
+            return fallbackFacts[Math.floor(Math.random() * fallbackFacts.length)];
+        } catch (error) {
+            return "The first computer bug was an actual bug - a moth trapped in a computer in 1947!";
+        }
+    }
+
+    const jokes = [
+        { setup: "Why don't skeletons fight each other?", punchline: "They don't have the guts! 💀" },
+        { setup: "Why do programmers prefer dark mode?", punchline: "Because light attracts bugs! 🐛" },
+        { setup: "Why did the developer go broke?", punchline: "Because he used up all his cache! 💸" },
+        { setup: "What do you call a programmer from Finland?", punchline: "Nerdic! 🤓" },
+        { setup: "Why do Java developers wear glasses?", punchline: "Because they can't C#! 👓" },
+        { setup: "How many programmers does it take to change a light bulb?", punchline: "None. That's a hardware problem! 💡" },
+        { setup: "Why did the programmer quit his job?", punchline: "He didn't get arrays! 📊" },
+        { setup: "What's a programmer's favorite hangout place?", punchline: "Foo Bar! 🍺" },
+        { setup: "Why did the software engineer break up with the data analyst?", punchline: "They had no chemistry, only SQL! 💔" },
+        { setup: "What do you call a sleeping bull at a computer?", punchline: "A bulldozer! 🐂💤" }
+    ];
+
+    const facts = [
+        "The first computer bug was an actual bug - a moth trapped in a computer in 1947!",
+        "The term 'debugging' was coined by Grace Hopper when she found the first computer bug.",
+        "The first 1GB hard drive weighed over 550 pounds and cost $40,000 in 1980!",
+        "There are more possible games of chess than atoms in the observable universe.",
+        "The average person blinks 15-20 times per minute, but only 5 times when using a computer.",
+        "The first computer programmer was Ada Lovelace in 1843.",
+        "Google's original name was 'Backrub'.",
+        "The '@' symbol was used for the first time in an email in 1971.",
+        "The first computer virus was created in 1986 and was called 'Brain'.",
+        "YouTube was originally designed as a dating site."
+    ];
+
+    const wheelMessages = [
+        "Have a wonderful day! 🌟",
+        "You are amazing! ✨",
+        "Believe in yourself! 💪",
+        "Love yourself! 💖",
+        "You've got this! 🚀",
+        "Stay positive! 😊",
+        "You're incredible! 🌈",
+        "Dream big! 🌙",
+        "You matter! 💫",
+        "Smile today! 😄",
+        "You're special! 🦋",
+        "Keep shining! ⭐",
+        "You're loved! 💕",
+        "Stay strong! 🔥",
+        "You're beautiful! 🌸",
+        "Embrace today! 🌻"
+    ];
+
+    const surprises = [
+        function showPuzzle() {
+            surpriseContent.innerHTML = `
+                 3ch3>🧩 Sliding Puzzle Game</h3>
+                 3cp>Arrange the numbers 1-8 in order!</p>
+                 3cdiv class="puzzle-grid">
+                     3cdiv class="puzzle-tile">1</div>
+                     3cdiv class="puzzle-tile">2</div>
+                     3cdiv class="puzzle-tile">3</div>
+                     3cdiv class="puzzle-tile">4</div>
+                     3cdiv class="puzzle-tile">5</div>
+                     3cdiv class="puzzle-tile">6</div>
+                     3cdiv class="puzzle-tile">7</div>
+                     3cdiv class="puzzle-tile">8</div>
+                     3cdiv class="puzzle-tile empty"></div>
+                 3c/div>
+            `;
+        },
+        async function showRandomRiddle() {
+            // Show loading message first
+            surpriseContent.innerHTML = `
+                 3ch3>🤔 Riddle Me This!</h3>
+                 3cdiv class="loading-message">
+                     3ci class="fas fa-spinner fa-spin"></i> Fetching a fresh riddle for you...
+                 3c/div>
+            `;
+            
+            try {
+                const riddle = await fetchRandomRiddle();
+                const riddleId = Date.now(); // Unique ID for this riddle
+                
+                surpriseContent.innerHTML = `
+                     3ch3>🤔 Riddle Me This!</h3>
+                     3cdiv class="riddle-container">
+                         3cp class="riddle-question"> 3ci>${riddle.question}</i></p>
+                         3cdiv class="riddle-input-section">
+                             3cinput type="text" id="riddleInput${riddleId}" placeholder="Type your answer here and press Enter..." class="riddle-input">
+                             3cbutton onclick="checkRiddleAnswer${riddleId}()" class="game-controls riddle-submit-btn">🚀 Submit Answer</button>
+                         3c/div>
+                         3cdiv id="riddleResult${riddleId}" class="riddle-result"></div>
+                         3cdiv id="confetti${riddleId}" class="confetti-container"></div>
+                     3c/div>
+                `;
+            
+                // Encouraging messages for wrong answers
+                const encouragingMessages = [
+                    "You're almost there! 😊",
+                    "Great try! You can do better! 💪",
+                    "So close! Keep thinking! 🤔",
+                    "Nice attempt! Don't give up! ✨",
+                    "You're on the right track! 🎯",
+                    "Almost got it! Try again! 😄",
+                    "Good thinking! You're learning! 🧠",
+                    "That was a creative answer! 🎨"
+                ];
+            
+            // Add functionality for this specific riddle
+            window[`checkRiddleAnswer${riddleId}`] = function() {
+                const input = document.getElementById(`riddleInput${riddleId}`);
+                const result = document.getElementById(`riddleResult${riddleId}`);
+                const confettiContainer = document.getElementById(`confetti${riddleId}`);
+                const userAnswer = input.value.toLowerCase().trim();
+                
+                if (!userAnswer) {
+                    result.innerHTML = ' 3cdiv class="hint-message">💡 Please type your answer first!</div>';
+                    return;
+                }
+                
+                // Extract key words from correct answer for comparison
+                const correctAnswer = riddle.answer.toLowerCase();
+                const correctWords = correctAnswer.replace(/[^a-z\s]/g, '').split(' ').filter(word => word.length > 2);
+                
+                // Check if answer is correct
+                let isCorrect = false;
+                for (let word of correctWords) {
+                    if (userAnswer.includes(word) || word.includes(userAnswer)) {
+                        isCorrect = true;
+                        break;
+                    }
+                }
+                
+                if (isCorrect) {
+                    // Correct answer - show confetti and celebration
+                    result.innerHTML = `
+                         3cdiv class="correct-answer">
+                            🎉 AMAZING! You got it right! 🎉<br>
+                             3cstrong>Answer: ${riddle.answer}</strong><br>
+                             3cspan class="celebration-text">You're brilliant! ✨</span>
+                         3c/div>
+                    `;
+                    createConfetti(confettiContainer);
+                    input.disabled = true;
+                } else {
+                    // Wrong answer - show encouragement and reveal answer
+                    const randomMessage = encouragingMessages[Math.floor(Math.random() * encouragingMessages.length)];
+                    result.innerHTML = `
+                         3cdiv class="wrong-answer">
+                             3cdiv class="encouragement">${randomMessage}</div>
+                             3cdiv class="answer-reveal">The answer is:  3cstrong>${riddle.answer}</strong></div>
+                             3cdiv class="motivation">Keep practicing - you're getting smarter! 🧠💫</div>
+                         3c/div>
+                    `;
+                    input.disabled = true;
+                }
+            };
+            
+            // Add enter key functionality
+            setTimeout(() => {
+                const input = document.getElementById(`riddleInput${riddleId}`);
+                if (input) {
+                    input.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter' && !input.disabled) {
+                            window[`checkRiddleAnswer${riddleId}`]();
+                        }
+                    });
+                    input.focus(); // Auto-focus on input
+                }
+            }, 100);
+        },
+                } catch (error) {
+                    surpriseContent.innerHTML = `
+                         3ch3>🤔 Riddle Me This!</h3>
+                         3cdiv class="error-message">Oops! Couldn't fetch a riddle. Please try another surprise!</div>
+                    `;
+                }
+            }
+        },
+        async function showRandomQuote() {
+            // Show loading message
+            surpriseContent.innerHTML = `
+                 3ch3>💭 Inspirational Quote</h3>
+                 3cdiv class="loading-message">
+                     3ci class="fas fa-spinner fa-spin"></i> Getting an inspiring quote...
+                 3c/div>
+            `;
+            
+            try {
+                const quote = await fetchRandomQuote();
+                surpriseContent.innerHTML = `
+                     3ch3>💭 Inspirational Quote</h3>
+                     3cdiv class="quote-container">
+                         3cp class="quote-text"> 3ci>"${quote.text}"</i></p>
+                         3cp class="quote-author">- ${quote.author}</p>
+                     3c/div>
+                `;
+            } catch (error) {
+                surpriseContent.innerHTML = `
+                     3ch3>💭 Inspirational Quote</h3>
+                     3cdiv class="error-message">Couldn't fetch a quote right now. Please try another surprise!</div>
+                `;
+            }
+        },
+        async function showRandomJoke() {
+            // Show loading message
+            surpriseContent.innerHTML = `
+                 3ch3>😂 Laugh Out Loud</h3>
+                 3cdiv class="loading-message">
+                     3ci class="fas fa-spinner fa-spin"></i> Finding a funny joke...
+                 3c/div>
+            `;
+            
+            try {
+                const joke = await fetchRandomJoke();
+                surpriseContent.innerHTML = `
+                     3ch3>😂 Laugh Out Loud</h3>
+                     3cdiv class="joke-container">
+                         3cp class="joke-text"> 3ci>${joke.setup}</i></p>
+                         3cdiv class="riddle-answer">${joke.punchline}</div>
+                     3c/div>
+                `;
+            } catch (error) {
+                surpriseContent.innerHTML = `
+                     3ch3>😂 Laugh Out Loud</h3>
+                     3cdiv class="error-message">Couldn't fetch a joke right now. Please try another surprise!</div>
+                `;
+            }
+        },
+        async function showRandomFact() {
+            // Show loading message
+            surpriseContent.innerHTML = `
+                 3ch3>🤓 Fun Fact</h3>
+                 3cdiv class="loading-message">
+                     3ci class="fas fa-spinner fa-spin"></i> Discovering an interesting fact...
+                 3c/div>
+            `;
+            
+            try {
+                const fact = await fetchRandomFact();
+                surpriseContent.innerHTML = `
+                     3ch3>🤓 Fun Fact</h3>
+                     3cdiv class="quote-container">
+                         3cp class="quote-text"> 3ci>${fact}</i></p>
+                         3cp class="quote-author">- Random Facts</p>
+                     3c/div>
+                `;
+            } catch (error) {
+                surpriseContent.innerHTML = `
+                     3ch3>🤓 Fun Fact</h3>
+                     3cdiv class="error-message">Couldn't fetch a fact right now. Please try another surprise!</div>
+                `;
+            }
+        },
+        function showSpinningWheel() {
+            surpriseContent.innerHTML = `
+                 3ch3>🎡 Spinning Wheel of Positivity</h3>
+                 3cdiv class="wheel-container">
+                     3cdiv class="wheel" id="wheel">
+                         3cdiv class="wheel-center">SPIN</div>
+                     3c/div>
+                     3cdiv class="wheel-pointer">▼</div>
+                     3cbutton class="game-controls" onclick="spinWheel()">🎯 Spin the Wheel!</button>
+                     3cdiv id="wheelResult" class="wheel-result"></div>
+                 3c/div>
+            `;
+            
+            // Add wheel spinning functionality
+            window.spinWheel = function() {
+                const wheel = document.getElementById('wheel');
+                const result = document.getElementById('wheelResult');
+                const randomMessage = wheelMessages[Math.floor(Math.random() * wheelMessages.length)];
+                const randomRotation = Math.floor(Math.random() * 360) + 1440; // At least 4 full rotations
+                
+                wheel.style.transform = `rotate(${randomRotation}deg)`;
+                wheel.style.transition = 'transform 3s ease-out';
+                
+                setTimeout(() => {
+                    result.innerHTML = ` 3cdiv class="wheel-message">${randomMessage}</div>`;
+                    result.style.display = 'block';
+                }, 3000);
+            };
+        },
+        function showSudoku() {
+            surpriseContent.innerHTML = `
+                 3ch3>🧮 Sudoku Challenge</h3>
+                 3cp>Fill in numbers 1-9 (simplified version)</p>
+                 3cdiv class="sudoku-grid">
+                    ${[...Array(81)].map((_, i) => ` 3cdiv class="sudoku-cell"> 3cinput type="text" maxlength="1"></div>`).join('')}
+                 3c/div>
+            `;
+        }
+    ];
+
+    // Confetti animation function
+    function createConfetti(container) {
+        const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffd93d', '#6c5ce7', '#fd79a8', '#fdcb6e'];
+        
+        for (let i = 0; i < 50; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti-piece';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.animationDelay = Math.random() * 3 + 's';
+            confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            container.appendChild(confetti);
+        }
+        
+        // Remove confetti after animation
+        setTimeout(() => {
+            container.innerHTML = '';
+        }, 5000);
+    }
+
+    function displayRandomSurprise() {
+        const randomIndex = Math.floor(Math.random() * surprises.length);
+        surprises[randomIndex]();
+
+        surpriseContent.style.display = 'block';
+        newSurpriseBtn.style.display = 'inline-block';
+    }
+
+    if (surpriseBtn) {
+        surpriseBtn.addEventListener('click', function() {
+            displayRandomSurprise();
+            surpriseBtn.style.display = 'none';
+        });
+
+        newSurpriseBtn.addEventListener('click', function() {
+            displayRandomSurprise();
+        });
+    }
+
     // Animate sections on scroll (simple implementation)
     const observerOptions = {
         threshold: 0.1,
