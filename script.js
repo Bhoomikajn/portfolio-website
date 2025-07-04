@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Form submission
+    // Form submission with Formspree
     const contactForm = document.getElementById('contactForm');
     
     if (contactForm) {
@@ -43,26 +43,70 @@ document.addEventListener('DOMContentLoaded', function() {
             // Get form data
             const formData = new FormData(this);
             const name = formData.get('name');
-            const email = formData.get('email');
+            const email = formData.get('_replyto');
             const message = formData.get('message');
             
             // Simple validation
             if (!name || !email || !message) {
-                alert('Please fill in all fields.');
+                showFormStatus('Please fill in all fields.', 'error');
                 return;
             }
             
             // Email validation
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
-                alert('Please enter a valid email address.');
+                showFormStatus('Please enter a valid email address.', 'error');
                 return;
             }
             
-            // Success message (in a real application, you would send this data to a server)
-            alert('Thank you for your message! I will get back to you soon.');
-            this.reset();
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Sending...';
+            submitBtn.disabled = true;
+            
+            // Submit to Formspree
+            fetch(this.action, {
+                method: this.method,
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    showFormStatus('Thank you! Your message has been sent successfully. I will get back to you soon.', 'success');
+                    this.reset();
+                } else {
+                    response.json().then(data => {
+                        if (Object.hasOwn(data, 'errors')) {
+                            showFormStatus(data['errors'].map(error => error['message']).join(', '), 'error');
+                        } else {
+                            showFormStatus('Oops! There was a problem submitting your form', 'error');
+                        }
+                    });
+                }
+            }).catch(error => {
+                showFormStatus('Oops! There was a problem submitting your form', 'error');
+            }).finally(() => {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            });
         });
+    }
+    
+    // Function to show form status messages
+    function showFormStatus(message, type) {
+        const statusDiv = document.getElementById('form-status');
+        if (statusDiv) {
+            statusDiv.textContent = message;
+            statusDiv.style.display = 'block';
+            statusDiv.className = type === 'success' ? 'form-success' : 'form-error';
+            
+            // Hide message after 5 seconds
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
     }
 
     // Navbar scroll effect
