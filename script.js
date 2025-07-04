@@ -121,10 +121,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Simple test function first
+    function simpleTest() {
+        const surpriseContent = document.getElementById('surpriseContent');
+        if (surpriseContent) {
+            surpriseContent.innerHTML = '<h3>🎉 It Works!</h3><p>The button is working! Random content will go here.</p>';
+            surpriseContent.style.display = 'block';
+        }
+    }
+    
     // Surprise Section Functionality
+    console.log('Looking for surprise elements...');
     const surpriseBtn = document.getElementById('surpriseBtn');
     const newSurpriseBtn = document.getElementById('newSurpriseBtn');
     const surpriseContent = document.getElementById('surpriseContent');
+    
+    console.log('surpriseBtn:', surpriseBtn);
+    console.log('newSurpriseBtn:', newSurpriseBtn);
+    console.log('surpriseContent:', surpriseContent);
 
     // Hardcoded content arrays for fallbacks
     const fallbackQuotes = [
@@ -537,14 +551,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (surpriseBtn) {
+        console.log('Adding click listener to surprise button');
         surpriseBtn.addEventListener('click', function() {
-            displayRandomSurprise();
+            console.log('Surprise button clicked!');
+            simpleTest();
             surpriseBtn.style.display = 'none';
+            if (newSurpriseBtn) {
+                newSurpriseBtn.style.display = 'inline-block';
+            }
         });
 
-        newSurpriseBtn.addEventListener('click', function() {
-            displayRandomSurprise();
-        });
+        if (newSurpriseBtn) {
+            newSurpriseBtn.addEventListener('click', function() {
+                console.log('New surprise button clicked!');
+                simpleTest();
+            });
+        }
+    } else {
+        console.error('Surprise button not found! Check if the element exists.');
     }
 
     // Animate sections on scroll (simple implementation)
