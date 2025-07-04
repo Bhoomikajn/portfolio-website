@@ -126,112 +126,34 @@ document.addEventListener('DOMContentLoaded', function() {
     const newSurpriseBtn = document.getElementById('newSurpriseBtn');
     const surpriseContent = document.getElementById('surpriseContent');
 
-    // API Functions for dynamic content
-    async function fetchRandomQuote() {
-        try {
-            // Using multiple APIs as fallbacks
-            const apis = [
-                'https://api.quotable.io/random',
-                'https://quotegarden.herokuapp.com/api/v3/quotes/random',
-                'https://api.adviceslip.com/advice'
-            ];
-            
-            // Try Quotable API first
-            const response = await fetch(apis[0]);
-            if (response.ok) {
-                const data = await response.json();
-                return { text: data.content, author: data.author };
-            }
-            
-            // Fallback to hardcoded quotes if API fails
-            const fallbackQuotes = [
-                { text: "Success is not final, failure is not fatal: It is the courage to continue that counts.", author: "Winston S. Churchill" },
-                { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
-                { text: "Innovation distinguishes between a leader and a follower.", author: "Steve Jobs" },
-                { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
-                { text: "In the middle of difficulty lies opportunity.", author: "Albert Einstein" },
-                { text: "Code is like humor. When you have to explain it, it's bad.", author: "Cory House" }
-            ];
-            return fallbackQuotes[Math.floor(Math.random() * fallbackQuotes.length)];
-        } catch (error) {
-            // Return fallback quote if all APIs fail
-            return { text: "The only impossible journey is the one you never begin.", author: "Tony Robbins" };
-        }
-    }
+    // Hardcoded content arrays for fallbacks
+    const fallbackQuotes = [
+        { text: "Success is not final, failure is not fatal: It is the courage to continue that counts.", author: "Winston S. Churchill" },
+        { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+        { text: "Innovation distinguishes between a leader and a follower.", author: "Steve Jobs" },
+        { text: "Life is what happens to you while you're busy making other plans.", author: "John Lennon" },
+        { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+        { text: "It is during our darkest moments that we must focus to see the light.", author: "Aristotle" },
+        { text: "The only impossible journey is the one you never begin.", author: "Tony Robbins" },
+        { text: "In the middle of difficulty lies opportunity.", author: "Albert Einstein" },
+        { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+        { text: "Code is like humor. When you have to explain it, it's bad.", author: "Cory House" }
+    ];
 
-    async function fetchRandomRiddle() {
-        try {
-            // Using riddle APIs or creating dynamic riddles
-            const response = await fetch('https://riddles-api.vercel.app/random');
-            if (response.ok) {
-                const data = await response.json();
-                return { question: data.riddle, answer: data.answer };
-            }
-            
-            // Fallback to hardcoded riddles if API fails
-            const fallbackRiddles = [
-                { question: "What has keys but can't open locks?", answer: "A Piano 🎹" },
-                { question: "I am not alive, but I grow; I don't have lungs, but I need air; I don't have a mouth, but water kills me. What am I?", answer: "Fire 🔥" },
-                { question: "What gets wetter as it dries?", answer: "A towel 🏖️" },
-                { question: "What has a head and a tail but no body?", answer: "A coin 🪙" },
-                { question: "I'm tall when I'm young, and short when I'm old. What am I?", answer: "A candle 🕯️" },
-                { question: "What has hands but can't clap?", answer: "A clock ⏰" },
-                { question: "What comes once in a minute, twice in a moment, but never in a thousand years?", answer: "The letter M 📝" },
-                { question: "I have cities, but no houses. I have mountains, but no trees. I have water, but no fish. What am I?", answer: "A map 🗺️" },
-                { question: "What starts with T, ends with T, and has T in it?", answer: "A teapot 🫖" },
-                { question: "The more you take, the more you leave behind. What am I?", answer: "Footsteps 👣" }
-            ];
-            return fallbackRiddles[Math.floor(Math.random() * fallbackRiddles.length)];
-        } catch (error) {
-            // Return fallback riddle if API fails
-            return { question: "What has keys but can't open locks?", answer: "A Piano 🎹" };
-        }
-    }
-    
-    async function fetchRandomJoke() {
-        try {
-            const response = await fetch('https://official-joke-api.appspot.com/random_joke');
-            if (response.ok) {
-                const data = await response.json();
-                return { setup: data.setup, punchline: data.punchline + ' 😂' };
-            }
-            
-            // Fallback jokes
-            const fallbackJokes = [
-                { setup: "Why don't skeletons fight each other?", punchline: "They don't have the guts! 💀" },
-                { setup: "Why do programmers prefer dark mode?", punchline: "Because light attracts bugs! 🐛" },
-                { setup: "Why did the developer go broke?", punchline: "Because he used up all his cache! 💸" },
-                { setup: "How many programmers does it take to change a light bulb?", punchline: "None. That's a hardware problem! 💡" }
-            ];
-            return fallbackJokes[Math.floor(Math.random() * fallbackJokes.length)];
-        } catch (error) {
-            return { setup: "Why do programmers prefer dark mode?", punchline: "Because light attracts bugs! 🐛" };
-        }
-    }
-    
-    async function fetchRandomFact() {
-        try {
-            const response = await fetch('https://uselessfacts.jsph.pl/random.json?language=en');
-            if (response.ok) {
-                const data = await response.json();
-                return data.text;
-            }
-            
-            // Fallback facts
-            const fallbackFacts = [
-                "The first computer bug was an actual bug - a moth trapped in a computer in 1947!",
-                "Google's original name was 'Backrub'.",
-                "The '@' symbol was used for the first time in an email in 1971.",
-                "YouTube was originally designed as a dating site.",
-                "The first 1GB hard drive weighed over 550 pounds and cost $40,000 in 1980!"
-            ];
-            return fallbackFacts[Math.floor(Math.random() * fallbackFacts.length)];
-        } catch (error) {
-            return "The first computer bug was an actual bug - a moth trapped in a computer in 1947!";
-        }
-    }
+    const fallbackRiddles = [
+        { question: "What has keys but can't open locks?", answer: "A Piano 🎹" },
+        { question: "I am not alive, but I grow; I don't have lungs, but I need air; I don't have a mouth, but water kills me. What am I?", answer: "Fire 🔥" },
+        { question: "What gets wetter as it dries?", answer: "A towel 🏖️" },
+        { question: "What has a head and a tail but no body?", answer: "A coin 🪙" },
+        { question: "I'm tall when I'm young, and short when I'm old. What am I?", answer: "A candle 🕯️" },
+        { question: "What has hands but can't clap?", answer: "A clock ⏰" },
+        { question: "What comes once in a minute, twice in a moment, but never in a thousand years?", answer: "The letter M 📝" },
+        { question: "I have cities, but no houses. I have mountains, but no trees. I have water, but no fish. What am I?", answer: "A map 🗺️" },
+        { question: "What starts with T, ends with T, and has T in it?", answer: "A teapot 🫖" },
+        { question: "The more you take, the more you leave behind. What am I?", answer: "Footsteps 👣" }
+    ];
 
-    const jokes = [
+    const fallbackJokes = [
         { setup: "Why don't skeletons fight each other?", punchline: "They don't have the guts! 💀" },
         { setup: "Why do programmers prefer dark mode?", punchline: "Because light attracts bugs! 🐛" },
         { setup: "Why did the developer go broke?", punchline: "Because he used up all his cache! 💸" },
@@ -244,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
         { setup: "What do you call a sleeping bull at a computer?", punchline: "A bulldozer! 🐂💤" }
     ];
 
-    const facts = [
+    const fallbackFacts = [
         "The first computer bug was an actual bug - a moth trapped in a computer in 1947!",
         "The term 'debugging' was coined by Grace Hopper when she found the first computer bug.",
         "The first 1GB hard drive weighed over 550 pounds and cost $40,000 in 1980!",
@@ -256,6 +178,75 @@ document.addEventListener('DOMContentLoaded', function() {
         "The first computer virus was created in 1986 and was called 'Brain'.",
         "YouTube was originally designed as a dating site."
     ];
+
+    // API Functions for dynamic content
+    async function fetchRandomQuote() {
+        try {
+            // Try Quotable API first
+            const response = await fetch('https://api.quotable.io/random');
+            if (response.ok) {
+                const data = await response.json();
+                return { text: data.content, author: data.author };
+            }
+            
+            // Fallback to hardcoded quotes if API fails
+            return fallbackQuotes[Math.floor(Math.random() * fallbackQuotes.length)];
+        } catch (error) {
+            // Return random fallback quote if all APIs fail
+            return fallbackQuotes[Math.floor(Math.random() * fallbackQuotes.length)];
+        }
+    }
+
+    async function fetchRandomRiddle() {
+        try {
+            // Try riddle API first
+            const response = await fetch('https://riddles-api.vercel.app/random');
+            if (response.ok) {
+                const data = await response.json();
+                return { question: data.riddle, answer: data.answer };
+            }
+            
+            // Fallback to our hardcoded riddles if API fails
+            return fallbackRiddles[Math.floor(Math.random() * fallbackRiddles.length)];
+        } catch (error) {
+            // Return random fallback riddle if all APIs fail
+            return fallbackRiddles[Math.floor(Math.random() * fallbackRiddles.length)];
+        }
+    }
+    
+    async function fetchRandomJoke() {
+        try {
+            const response = await fetch('https://official-joke-api.appspot.com/random_joke');
+            if (response.ok) {
+                const data = await response.json();
+                return { setup: data.setup, punchline: data.punchline + ' 😂' };
+            }
+            
+            // Fallback to our hardcoded jokes if API fails
+            return fallbackJokes[Math.floor(Math.random() * fallbackJokes.length)];
+        } catch (error) {
+            // Return random fallback joke if all APIs fail
+            return fallbackJokes[Math.floor(Math.random() * fallbackJokes.length)];
+        }
+    }
+    
+    async function fetchRandomFact() {
+        try {
+            const response = await fetch('https://uselessfacts.jsph.pl/random.json?language=en');
+            if (response.ok) {
+                const data = await response.json();
+                return data.text;
+            }
+            
+            // Fallback to our hardcoded facts if API fails
+            return fallbackFacts[Math.floor(Math.random() * fallbackFacts.length)];
+        } catch (error) {
+            // Return random fallback fact if all APIs fail
+            return fallbackFacts[Math.floor(Math.random() * fallbackFacts.length)];
+        }
+    }
+
+    // Note: Now using centralized fallback arrays above
 
     const wheelMessages = [
         "Have a wonderful day! 🌟",
