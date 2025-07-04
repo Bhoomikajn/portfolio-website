@@ -385,13 +385,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     input.focus(); // Auto-focus on input
                 }
             }, 100);
-        },
-                } catch (error) {
-                    surpriseContent.innerHTML = `
-                         3ch3>🤔 Riddle Me This!</h3>
-                         3cdiv class="error-message">Oops! Couldn't fetch a riddle. Please try another surprise!</div>
-                    `;
-                }
+            
+            } catch (error) {
+                surpriseContent.innerHTML = `
+                     3ch3>🤔 Riddle Me This!</h3>
+                     3cdiv class="error-message">Oops! Couldn't fetch a riddle. Please try another surprise!</div>
+                `;
             }
         },
         async function showRandomQuote() {
