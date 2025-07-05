@@ -121,13 +121,67 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Simple test function first
-    function simpleTest() {
-        const surpriseContent = document.getElementById('surpriseContent');
-        if (surpriseContent) {
-            surpriseContent.innerHTML = '<h3>🎉 It Works!</h3><p>The button is working! Random content will go here.</p>';
-            surpriseContent.style.display = 'block';
+    // Create popup modal for surprises
+    function createSurpriseModal() {
+        // Remove existing modal if any
+        const existingModal = document.getElementById('surpriseModal');
+        if (existingModal) {
+            existingModal.remove();
         }
+        
+        // Create modal HTML
+        const modal = document.createElement('div');
+        modal.id = 'surpriseModal';
+        modal.className = 'surprise-modal';
+        modal.innerHTML = `
+            <div class="modal-overlay" onclick="closeSurpriseModal()"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>🎉 Surprise Time!</h2>
+                    <button class="close-btn" onclick="closeSurpriseModal()">&times;</button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <div class="loading-message">
+                        <i class="fas fa-spinner fa-spin"></i> Loading your surprise...
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Add global close function
+        window.closeSurpriseModal = function() {
+            modal.classList.add('closing');
+            setTimeout(() => {
+                modal.remove();
+            }, 300);
+        };
+        
+        // Show modal with animation
+        setTimeout(() => {
+            modal.classList.add('show');
+        }, 10);
+        
+        return modal;
+    }
+    
+    function displayRandomSurprise() {
+        const modal = createSurpriseModal();
+        const modalBody = modal.querySelector('#modalBody');
+        
+        // Random surprise selection
+        const randomIndex = Math.floor(Math.random() * surprises.length);
+        
+        // Small delay for effect
+        setTimeout(() => {
+            try {
+                modalBody.innerHTML = '';
+                surprises[randomIndex](modalBody);
+            } catch (error) {
+                modalBody.innerHTML = '<div class="error-message">Oops! Something went wrong. Please try another surprise!</div>';
+            }
+        }, 500);
     }
     
     // Surprise Section Functionality
@@ -282,37 +336,67 @@ document.addEventListener('DOMContentLoaded', function() {
     ];
 
     const surprises = [
-        function showPuzzle() {
-            surpriseContent.innerHTML = `
-                 3ch3>🧩 Sliding Puzzle Game</h3>
-                 3cp>Arrange the numbers 1-8 in order!</p>
-                 3cdiv class="puzzle-grid">
-                     3cdiv class="puzzle-tile">1</div>
-                     3cdiv class="puzzle-tile">2</div>
-                     3cdiv class="puzzle-tile">3</div>
-                     3cdiv class="puzzle-tile">4</div>
-                     3cdiv class="puzzle-tile">5</div>
-                     3cdiv class="puzzle-tile">6</div>
-                     3cdiv class="puzzle-tile">7</div>
-                     3cdiv class="puzzle-tile">8</div>
-                     3cdiv class="puzzle-tile empty"></div>
-                 3c/div>
+        function showSnakeGame(container) {
+            container = container || document.getElementById('surpriseContent');
+            container.innerHTML = `
+                <h3>🐍 Snake Game</h3>
+                <p>Use arrow keys or WASD to control the snake!</p>
+                <div class="snake-game">
+                    <canvas id="snakeCanvas" class="snake-canvas" width="400" height="400"></canvas>
+                    <div class="game-info">
+                        <div>Score: <span id="snakeScore">0</span></div>
+                        <div class="game-controls">
+                            <button onclick="startSnakeGame()">🎮 Start Game</button>
+                            <button onclick="pauseSnakeGame()">⏸️ Pause</button>
+                            <button onclick="resetSnakeGame()">🔄 Reset</button>
+                        </div>
+                    </div>
+                </div>
             `;
+            
+            // Snake Game Implementation
+            setTimeout(() => {
+                initSnakeGame();
+            }, 100);
         },
-        async function showRandomRiddle() {
+        function showPuzzle(container) {
+            container = container || document.getElementById('surpriseContent');
+            const puzzleId = Date.now();
+            container.innerHTML = `
+                <h3>🧩 Sliding Puzzle Game</h3>
+                <p>Arrange the numbers 1-8 in order! Click tiles next to the empty space.</p>
+                <div class="puzzle-container">
+                    <div class="puzzle-grid" id="puzzleGrid${puzzleId}">
+                        <!-- Tiles will be generated by JavaScript -->
+                    </div>
+                    <div class="game-controls">
+                        <button onclick="shufflePuzzle${puzzleId}()">🔀 Shuffle</button>
+                        <button onclick="resetPuzzle${puzzleId}()">🔄 Reset</button>
+                    </div>
+                    <div id="puzzleMessage${puzzleId}" class="puzzle-message"></div>
+                </div>
+            `;
+            
+            // Initialize puzzle
+            setTimeout(() => {
+                initSlidingPuzzle(puzzleId);
+            }, 100);
+        },
+        async function showRandomRiddle(container) {
+            container = container || document.getElementById('surpriseContent');
             // Show loading message first
-            surpriseContent.innerHTML = `
-                 3ch3>🤔 Riddle Me This!</h3>
-                 3cdiv class="loading-message">
-                     3ci class="fas fa-spinner fa-spin"></i> Fetching a fresh riddle for you...
-                 3c/div>
+            container.innerHTML = `
+                <h3>🤔 Riddle Me This!</h3>
+                <div class="loading-message">
+                    <i class="fas fa-spinner fa-spin"></i> Fetching a fresh riddle for you...
+                </div>
             `;
             
             try {
                 const riddle = await fetchRandomRiddle();
                 const riddleId = Date.now(); // Unique ID for this riddle
                 
-                surpriseContent.innerHTML = `
+                container.innerHTML = `
                      3ch3>🤔 Riddle Me This!</h3>
                      3cdiv class="riddle-container">
                          3cp class="riddle-question"> 3ci>${riddle.question}</i></p>
@@ -401,98 +485,102 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 100);
             
             } catch (error) {
-                surpriseContent.innerHTML = `
-                     3ch3>🤔 Riddle Me This!</h3>
-                     3cdiv class="error-message">Oops! Couldn't fetch a riddle. Please try another surprise!</div>
+                container.innerHTML = `
+                    <h3>🤔 Riddle Me This!</h3>
+                    <div class="error-message">Oops! Couldn't fetch a riddle. Please try another surprise!</div>
                 `;
             }
         },
-        async function showRandomQuote() {
+        async function showRandomQuote(container) {
+            container = container || document.getElementById('surpriseContent');
             // Show loading message
-            surpriseContent.innerHTML = `
-                 3ch3>💭 Inspirational Quote</h3>
-                 3cdiv class="loading-message">
-                     3ci class="fas fa-spinner fa-spin"></i> Getting an inspiring quote...
-                 3c/div>
+            container.innerHTML = `
+                <h3>💭 Inspirational Quote</h3>
+                <div class="loading-message">
+                    <i class="fas fa-spinner fa-spin"></i> Getting an inspiring quote...
+                </div>
             `;
             
             try {
                 const quote = await fetchRandomQuote();
-                surpriseContent.innerHTML = `
-                     3ch3>💭 Inspirational Quote</h3>
-                     3cdiv class="quote-container">
-                         3cp class="quote-text"> 3ci>"${quote.text}"</i></p>
-                         3cp class="quote-author">- ${quote.author}</p>
-                     3c/div>
+                container.innerHTML = `
+                    <h3>💭 Inspirational Quote</h3>
+                    <div class="quote-container">
+                        <p class="quote-text"><i>"${quote.text}"</i></p>
+                        <p class="quote-author">- ${quote.author}</p>
+                    </div>
                 `;
             } catch (error) {
-                surpriseContent.innerHTML = `
-                     3ch3>💭 Inspirational Quote</h3>
-                     3cdiv class="error-message">Couldn't fetch a quote right now. Please try another surprise!</div>
+                container.innerHTML = `
+                    <h3>💭 Inspirational Quote</h3>
+                    <div class="error-message">Couldn't fetch a quote right now. Please try another surprise!</div>
                 `;
             }
         },
-        async function showRandomJoke() {
+        async function showRandomJoke(container) {
+            container = container || document.getElementById('surpriseContent');
             // Show loading message
-            surpriseContent.innerHTML = `
-                 3ch3>😂 Laugh Out Loud</h3>
-                 3cdiv class="loading-message">
-                     3ci class="fas fa-spinner fa-spin"></i> Finding a funny joke...
-                 3c/div>
+            container.innerHTML = `
+                <h3>😂 Laugh Out Loud</h3>
+                <div class="loading-message">
+                    <i class="fas fa-spinner fa-spin"></i> Finding a funny joke...
+                </div>
             `;
             
             try {
                 const joke = await fetchRandomJoke();
-                surpriseContent.innerHTML = `
-                     3ch3>😂 Laugh Out Loud</h3>
-                     3cdiv class="joke-container">
-                         3cp class="joke-text"> 3ci>${joke.setup}</i></p>
-                         3cdiv class="riddle-answer">${joke.punchline}</div>
-                     3c/div>
+                container.innerHTML = `
+                    <h3>😂 Laugh Out Loud</h3>
+                    <div class="joke-container">
+                        <p class="joke-text"><i>${joke.setup}</i></p>
+                        <div class="riddle-answer">${joke.punchline}</div>
+                    </div>
                 `;
             } catch (error) {
-                surpriseContent.innerHTML = `
-                     3ch3>😂 Laugh Out Loud</h3>
-                     3cdiv class="error-message">Couldn't fetch a joke right now. Please try another surprise!</div>
+                container.innerHTML = `
+                    <h3>😂 Laugh Out Loud</h3>
+                    <div class="error-message">Couldn't fetch a joke right now. Please try another surprise!</div>
                 `;
             }
         },
-        async function showRandomFact() {
+        async function showRandomFact(container) {
+            container = container || document.getElementById('surpriseContent');
             // Show loading message
-            surpriseContent.innerHTML = `
-                 3ch3>🤓 Fun Fact</h3>
-                 3cdiv class="loading-message">
-                     3ci class="fas fa-spinner fa-spin"></i> Discovering an interesting fact...
-                 3c/div>
+            container.innerHTML = `
+                <h3>🤓 Fun Fact</h3>
+                <div class="loading-message">
+                    <i class="fas fa-spinner fa-spin"></i> Discovering an interesting fact...
+                </div>
             `;
             
             try {
                 const fact = await fetchRandomFact();
-                surpriseContent.innerHTML = `
-                     3ch3>🤓 Fun Fact</h3>
-                     3cdiv class="quote-container">
-                         3cp class="quote-text"> 3ci>${fact}</i></p>
-                         3cp class="quote-author">- Random Facts</p>
-                     3c/div>
+                container.innerHTML = `
+                    <h3>🤓 Fun Fact</h3>
+                    <div class="quote-container">
+                        <p class="quote-text"><i>${fact}</i></p>
+                        <p class="quote-author">- Random Facts</p>
+                    </div>
                 `;
             } catch (error) {
-                surpriseContent.innerHTML = `
-                     3ch3>🤓 Fun Fact</h3>
-                     3cdiv class="error-message">Couldn't fetch a fact right now. Please try another surprise!</div>
+                container.innerHTML = `
+                    <h3>🤓 Fun Fact</h3>
+                    <div class="error-message">Couldn't fetch a fact right now. Please try another surprise!</div>
                 `;
             }
         },
-        function showSpinningWheel() {
-            surpriseContent.innerHTML = `
-                 3ch3>🎡 Spinning Wheel of Positivity</h3>
-                 3cdiv class="wheel-container">
-                     3cdiv class="wheel" id="wheel">
-                         3cdiv class="wheel-center">SPIN</div>
-                     3c/div>
-                     3cdiv class="wheel-pointer">▼</div>
-                     3cbutton class="game-controls" onclick="spinWheel()">🎯 Spin the Wheel!</button>
-                     3cdiv id="wheelResult" class="wheel-result"></div>
-                 3c/div>
+        function showSpinningWheel(container) {
+            container = container || document.getElementById('surpriseContent');
+            container.innerHTML = `
+                <h3>🎡 Spinning Wheel of Positivity</h3>
+                <div class="wheel-container">
+                    <div class="wheel" id="wheel">
+                        <div class="wheel-center">SPIN</div>
+                    </div>
+                    <div class="wheel-pointer">▼</div>
+                    <button class="game-controls" onclick="spinWheel()">🎯 Spin the Wheel!</button>
+                    <div id="wheelResult" class="wheel-result"></div>
+                </div>
             `;
             
             // Add wheel spinning functionality
@@ -506,19 +594,54 @@ document.addEventListener('DOMContentLoaded', function() {
                 wheel.style.transition = 'transform 3s ease-out';
                 
                 setTimeout(() => {
-                    result.innerHTML = ` 3cdiv class="wheel-message">${randomMessage}</div>`;
+                    result.innerHTML = `<div class="wheel-message">${randomMessage}</div>`;
                     result.style.display = 'block';
                 }, 3000);
             };
         },
-        function showSudoku() {
-            surpriseContent.innerHTML = `
-                 3ch3>🧮 Sudoku Challenge</h3>
-                 3cp>Fill in numbers 1-9 (simplified version)</p>
-                 3cdiv class="sudoku-grid">
-                    ${[...Array(81)].map((_, i) => ` 3cdiv class="sudoku-cell"> 3cinput type="text" maxlength="1"></div>`).join('')}
-                 3c/div>
+        function showSudoku(container) {
+            container = container || document.getElementById('surpriseContent');
+            const sudokuId = Date.now();
+            container.innerHTML = `
+                <h3>🧮 Mini Sudoku Challenge</h3>
+                <p>Fill in numbers 1-4 in this 4x4 grid! Each row and column must contain 1-4.</p>
+                <div class="sudoku-container">
+                    <div class="mini-sudoku-grid" id="sudokuGrid${sudokuId}">
+                        <!-- 4x4 grid for simplicity -->
+                    </div>
+                    <div class="game-controls">
+                        <button onclick="checkSudoku${sudokuId}()">✅ Check Solution</button>
+                        <button onclick="resetSudoku${sudokuId}()">🔄 Reset</button>
+                        <button onclick="hintSudoku${sudokuId}()">💡 Hint</button>
+                    </div>
+                    <div id="sudokuMessage${sudokuId}" class="sudoku-message"></div>
+                </div>
             `;
+            
+            setTimeout(() => {
+                initMiniSudoku(sudokuId);
+            }, 100);
+        },
+        function showTicTacToe(container) {
+            container = container || document.getElementById('surpriseContent');
+            const ticTacId = Date.now();
+            container.innerHTML = `
+                <h3>⭕ Tic Tac Toe</h3>
+                <p>You are X, computer is O. Get three in a row!</p>
+                <div class="tictactoe-container">
+                    <div class="tictactoe-grid" id="ticTacGrid${ticTacId}">
+                        <!-- 3x3 grid -->
+                    </div>
+                    <div class="game-controls">
+                        <button onclick="resetTicTacToe${ticTacId}()">🔄 New Game</button>
+                    </div>
+                    <div id="ticTacMessage${ticTacId}" class="game-message"></div>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                initTicTacToe(ticTacId);
+            }, 100);
         }
     ];
 
@@ -542,29 +665,456 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
 
-    function displayRandomSurprise() {
-        const randomIndex = Math.floor(Math.random() * surprises.length);
-        surprises[randomIndex]();
-
-        surpriseContent.style.display = 'block';
-        newSurpriseBtn.style.display = 'inline-block';
+    // Game implementations
+    function initSnakeGame() {
+        const canvas = document.getElementById('snakeCanvas');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        const gridSize = 20;
+        const tileCount = canvas.width / gridSize;
+        
+        let snake = [{x: 10, y: 10}];
+        let food = {x: 15, y: 15};
+        let dx = 0;
+        let dy = 0;
+        let score = 0;
+        let gameRunning = false;
+        let gameStarted = false;
+        
+        window.startSnakeGame = function() {
+            if (!gameStarted) {
+                gameStarted = true;
+                gameRunning = true;
+                gameLoop();
+            }
+        };
+        
+        window.pauseSnakeGame = function() {
+            gameRunning = false;
+        };
+        
+        window.resetSnakeGame = function() {
+            snake = [{x: 10, y: 10}];
+            food = {x: 15, y: 15};
+            dx = 0;
+            dy = 0;
+            score = 0;
+            gameRunning = false;
+            gameStarted = false;
+            document.getElementById('snakeScore').textContent = score;
+            clearCanvas();
+            drawGame();
+        };
+        
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            setTimeout(() => {
+                clearCanvas();
+                moveSnake();
+                drawGame();
+                gameLoop();
+            }, 100);
+        }
+        
+        function clearCanvas() {
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        function drawGame() {
+            drawSnake();
+            drawFood();
+        }
+        
+        function drawSnake() {
+            ctx.fillStyle = '#3498db';
+            snake.forEach(segment => {
+                ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 2, gridSize - 2);
+            });
+        }
+        
+        function drawFood() {
+            ctx.fillStyle = '#e74c3c';
+            ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 2, gridSize - 2);
+        }
+        
+        function moveSnake() {
+            // Don't move if no direction is set
+            if (dx === 0 && dy === 0) {
+                return;
+            }
+            
+            const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+            
+            // Check wall collision
+            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+                gameRunning = false;
+                alert('Game Over! Score: ' + score);
+                return;
+            }
+            
+            // Check self collision
+            if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                gameRunning = false;
+                alert('Game Over! Score: ' + score);
+                return;
+            }
+            
+            snake.unshift(head);
+            
+            // Check food collision
+            if (head.x === food.x && head.y === food.y) {
+                score += 10;
+                document.getElementById('snakeScore').textContent = score;
+                generateFood();
+            } else {
+                snake.pop();
+            }
+        }
+        
+        function generateFood() {
+            food = {
+                x: Math.floor(Math.random() * tileCount),
+                y: Math.floor(Math.random() * tileCount)
+            };
+        }
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            // Check if it's a valid game key
+            const isGameKey = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'W', 's', 'S', 'a', 'A', 'd', 'D'].includes(e.key);
+            
+            if (!isGameKey) return;
+            
+            // Start the game on first key press if not started
+            if (!gameStarted) {
+                gameStarted = true;
+                gameRunning = true;
+                gameLoop();
+            }
+            
+            if (!gameRunning) return;
+            
+            switch(e.key) {
+                case 'ArrowUp':
+                case 'w':
+                case 'W':
+                    if (dy !== 1) { dx = 0; dy = -1; }
+                    break;
+                case 'ArrowDown':
+                case 's':
+                case 'S':
+                    if (dy !== -1) { dx = 0; dy = 1; }
+                    break;
+                case 'ArrowLeft':
+                case 'a':
+                case 'A':
+                    if (dx !== 1) { dx = -1; dy = 0; }
+                    break;
+                case 'ArrowRight':
+                case 'd':
+                case 'D':
+                    if (dx !== -1) { dx = 1; dy = 0; }
+                    break;
+            }
+        });
+        
+        // Initial draw
+        drawGame();
     }
+    
+    function initSlidingPuzzle(puzzleId) {
+        const gridElement = document.getElementById(`puzzleGrid${puzzleId}`);
+        if (!gridElement) return;
+        
+        let tiles = [1, 2, 3, 4, 5, 6, 7, 8, 0]; // 0 represents empty space
+        let size = 3;
+        
+        function renderPuzzle() {
+            gridElement.innerHTML = '';
+            tiles.forEach((tile, index) => {
+                const tileElement = document.createElement('div');
+                tileElement.className = tile === 0 ? 'puzzle-tile empty' : 'puzzle-tile';
+                tileElement.textContent = tile === 0 ? '' : tile;
+                if (tile !== 0) {
+                    tileElement.onclick = () => moveTile(index);
+                }
+                gridElement.appendChild(tileElement);
+            });
+        }
+        
+        function moveTile(index) {
+            const emptyIndex = tiles.indexOf(0);
+            const validMoves = getValidMoves(emptyIndex);
+            
+            if (validMoves.includes(index)) {
+                [tiles[index], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[index]];
+                renderPuzzle();
+                checkWin();
+            }
+        }
+        
+        function getValidMoves(emptyIndex) {
+            const moves = [];
+            const row = Math.floor(emptyIndex / size);
+            const col = emptyIndex % size;
+            
+            if (row > 0) moves.push(emptyIndex - size); // Up
+            if (row < size - 1) moves.push(emptyIndex + size); // Down
+            if (col > 0) moves.push(emptyIndex - 1); // Left
+            if (col < size - 1) moves.push(emptyIndex + 1); // Right
+            
+            return moves;
+        }
+        
+        function checkWin() {
+            const winState = [1, 2, 3, 4, 5, 6, 7, 8, 0];
+            if (JSON.stringify(tiles) === JSON.stringify(winState)) {
+                document.getElementById(`puzzleMessage${puzzleId}`).innerHTML = `
+                    <div class="win-message">🎉 Congratulations! You solved the puzzle! 🎉</div>
+                `;
+                createConfetti(document.getElementById(`puzzleMessage${puzzleId}`));
+            }
+        }
+        
+        function shuffle() {
+            for (let i = 0; i < 1000; i++) {
+                const emptyIndex = tiles.indexOf(0);
+                const validMoves = getValidMoves(emptyIndex);
+                const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+                [tiles[emptyIndex], tiles[randomMove]] = [tiles[randomMove], tiles[emptyIndex]];
+            }
+            renderPuzzle();
+        }
+        
+        window[`shufflePuzzle${puzzleId}`] = shuffle;
+        window[`resetPuzzle${puzzleId}`] = function() {
+            tiles = [1, 2, 3, 4, 5, 6, 7, 8, 0];
+            renderPuzzle();
+            document.getElementById(`puzzleMessage${puzzleId}`).innerHTML = '';
+        };
+        
+        // Initial render and shuffle
+        renderPuzzle();
+        shuffle();
+    }
+    
+    function initMiniSudoku(sudokuId) {
+        const gridElement = document.getElementById(`sudokuGrid${sudokuId}`);
+        if (!gridElement) return;
+        
+        // Simple 4x4 Sudoku puzzle
+        const initialPuzzle = [
+            [1, 0, 0, 4],
+            [0, 0, 1, 0],
+            [0, 1, 0, 0],
+            [4, 0, 0, 1]
+        ];
+        
+        const solution = [
+            [1, 2, 3, 4],
+            [3, 4, 1, 2],
+            [2, 1, 4, 3],
+            [4, 3, 2, 1]
+        ];
+        
+        let currentPuzzle = initialPuzzle.map(row => [...row]);
+        
+        function renderSudoku() {
+            gridElement.innerHTML = '';
+            for (let row = 0; row < 4; row++) {
+                for (let col = 0; col < 4; col++) {
+                    const cell = document.createElement('input');
+                    cell.type = 'text';
+                    cell.maxLength = 1;
+                    cell.className = 'sudoku-cell';
+                    if (initialPuzzle[row][col] !== 0) {
+                        cell.value = initialPuzzle[row][col];
+                        cell.disabled = true;
+                        cell.classList.add('given');
+                    } else {
+                        cell.value = currentPuzzle[row][col] === 0 ? '' : currentPuzzle[row][col];
+                        cell.oninput = (e) => {
+                            const value = parseInt(e.target.value);
+                            if (value >= 1 && value <= 4) {
+                                currentPuzzle[row][col] = value;
+                            } else {
+                                currentPuzzle[row][col] = 0;
+                                e.target.value = '';
+                            }
+                        };
+                    }
+                    gridElement.appendChild(cell);
+                }
+            }
+        }
+        
+        window[`checkSudoku${sudokuId}`] = function() {
+            const messageEl = document.getElementById(`sudokuMessage${sudokuId}`);
+            let isCorrect = true;
+            
+            for (let row = 0; row < 4; row++) {
+                for (let col = 0; col < 4; col++) {
+                    if (currentPuzzle[row][col] !== solution[row][col]) {
+                        isCorrect = false;
+                        break;
+                    }
+                }
+                if (!isCorrect) break;
+            }
+            
+            if (isCorrect) {
+                messageEl.innerHTML = `
+                    <div class="win-message">🎉 Perfect! You solved the Sudoku! 🎉</div>
+                `;
+                createConfetti(messageEl);
+            } else {
+                messageEl.innerHTML = `
+                    <div class="hint-message">💡 Not quite right. Keep trying! Remember: each row and column needs 1-4.</div>
+                `;
+            }
+        };
+        
+        window[`resetSudoku${sudokuId}`] = function() {
+            currentPuzzle = initialPuzzle.map(row => [...row]);
+            renderSudoku();
+            document.getElementById(`sudokuMessage${sudokuId}`).innerHTML = '';
+        };
+        
+        window[`hintSudoku${sudokuId}`] = function() {
+            // Find first empty cell and show hint
+            for (let row = 0; row < 4; row++) {
+                for (let col = 0; col < 4; col++) {
+                    if (currentPuzzle[row][col] === 0) {
+                        document.getElementById(`sudokuMessage${sudokuId}`).innerHTML = `
+                            <div class="hint-message">💡 Hint: Row ${row + 1}, Column ${col + 1} should be ${solution[row][col]}</div>
+                        `;
+                        return;
+                    }
+                }
+            }
+        };
+        
+        renderSudoku();
+    }
+    
+    function initTicTacToe(ticTacId) {
+        const gridElement = document.getElementById(`ticTacGrid${ticTacId}`);
+        if (!gridElement) return;
+        
+        let board = Array(9).fill('');
+        let currentPlayer = 'X';
+        let gameActive = true;
+        
+        function renderBoard() {
+            gridElement.innerHTML = '';
+            board.forEach((cell, index) => {
+                const cellElement = document.createElement('div');
+                cellElement.className = 'tictac-cell';
+                cellElement.textContent = cell;
+                cellElement.onclick = () => makeMove(index);
+                gridElement.appendChild(cellElement);
+            });
+        }
+        
+        function makeMove(index) {
+            if (board[index] === '' && gameActive && currentPlayer === 'X') {
+                board[index] = 'X';
+                renderBoard();
+                
+                if (checkWinner()) {
+                    document.getElementById(`ticTacMessage${ticTacId}`).innerHTML = `
+                        <div class="win-message">🎉 You win! 🎉</div>
+                    `;
+                    gameActive = false;
+                    return;
+                }
+                
+                if (board.every(cell => cell !== '')) {
+                    document.getElementById(`ticTacMessage${ticTacId}`).innerHTML = `
+                        <div class="tie-message">🤝 It's a tie!</div>
+                    `;
+                    gameActive = false;
+                    return;
+                }
+                
+                currentPlayer = 'O';
+                setTimeout(computerMove, 500);
+            }
+        }
+        
+        function computerMove() {
+            if (!gameActive) return;
+            
+            const emptyCells = board.map((cell, index) => cell === '' ? index : null).filter(x => x !== null);
+            if (emptyCells.length > 0) {
+                const randomIndex = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                board[randomIndex] = 'O';
+                renderBoard();
+                
+                if (checkWinner()) {
+                    document.getElementById(`ticTacMessage${ticTacId}`).innerHTML = `
+                        <div class="lose-message">😅 Computer wins! Try again!</div>
+                    `;
+                    gameActive = false;
+                    return;
+                }
+                
+                if (board.every(cell => cell !== '')) {
+                    document.getElementById(`ticTacMessage${ticTacId}`).innerHTML = `
+                        <div class="tie-message">🤝 It's a tie!</div>
+                    `;
+                    gameActive = false;
+                    return;
+                }
+                
+                currentPlayer = 'X';
+            }
+        }
+        
+        function checkWinner() {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+                [0, 4, 8], [2, 4, 6] // Diagonals
+            ];
+            
+            return winPatterns.some(pattern => {
+                const [a, b, c] = pattern;
+                return board[a] && board[a] === board[b] && board[a] === board[c];
+            });
+        }
+        
+        window[`resetTicTacToe${ticTacId}`] = function() {
+            board = Array(9).fill('');
+            currentPlayer = 'X';
+            gameActive = true;
+            renderBoard();
+            document.getElementById(`ticTacMessage${ticTacId}`).innerHTML = '';
+        };
+        
+        renderBoard();
+    }
+    
+    // Track recent surprises to avoid repetition
+    let recentSurprises = [];
+    const maxRecentSurprises = 3;
+    
+    // This function is already defined above in the modal system
 
     if (surpriseBtn) {
         console.log('Adding click listener to surprise button');
         surpriseBtn.addEventListener('click', function() {
             console.log('Surprise button clicked!');
-            simpleTest();
-            surpriseBtn.style.display = 'none';
-            if (newSurpriseBtn) {
-                newSurpriseBtn.style.display = 'inline-block';
-            }
+            displayRandomSurprise();
         });
 
         if (newSurpriseBtn) {
             newSurpriseBtn.addEventListener('click', function() {
                 console.log('New surprise button clicked!');
-                simpleTest();
+                displayRandomSurprise();
             });
         }
     } else {
