@@ -397,16 +397,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 const riddleId = Date.now(); // Unique ID for this riddle
                 
                 container.innerHTML = `
-                     3ch3>🤔 Riddle Me This!</h3>
-                     3cdiv class="riddle-container">
-                         3cp class="riddle-question"> 3ci>${riddle.question}</i></p>
-                         3cdiv class="riddle-input-section">
-                             3cinput type="text" id="riddleInput${riddleId}" placeholder="Type your answer here and press Enter..." class="riddle-input">
-                             3cbutton onclick="checkRiddleAnswer${riddleId}()" class="game-controls riddle-submit-btn">🚀 Submit Answer</button>
-                         3c/div>
-                         3cdiv id="riddleResult${riddleId}" class="riddle-result"></div>
-                         3cdiv id="confetti${riddleId}" class="confetti-container"></div>
-                     3c/div>
+                    <h3>🤔 Riddle Me This!</h3>
+                    <div class="riddle-container">
+                        <p class="riddle-question"><i>${riddle.question}</i></p>
+                        <div class="riddle-input-section">
+                            <input type="text" id="riddleInput${riddleId}" placeholder="Type your answer here and press Enter..." class="riddle-input">
+                            <button onclick="checkRiddleAnswer${riddleId}()" class="game-controls riddle-submit-btn">🚀 Submit Answer</button>
+                        </div>
+                        <div id="riddleResult${riddleId}" class="riddle-result"></div>
+                        <div id="confetti${riddleId}" class="confetti-container"></div>
+                    </div>
                 `;
             
                 // Encouraging messages for wrong answers
@@ -429,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const userAnswer = input.value.toLowerCase().trim();
                 
                 if (!userAnswer) {
-                    result.innerHTML = ' 3cdiv class="hint-message">💡 Please type your answer first!</div>';
+                    result.innerHTML = '<div class="hint-message">💡 Please type your answer first!</div>';
                     return;
                 }
                 
@@ -449,11 +449,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (isCorrect) {
                     // Correct answer - show confetti and celebration
                     result.innerHTML = `
-                         3cdiv class="correct-answer">
+                        <div class="correct-answer">
                             🎉 AMAZING! You got it right! 🎉<br>
-                             3cstrong>Answer: ${riddle.answer}</strong><br>
-                             3cspan class="celebration-text">You're brilliant! ✨</span>
-                         3c/div>
+                            <strong>Answer: ${riddle.answer}</strong><br>
+                            <span class="celebration-text">You're brilliant! ✨</span>
+                        </div>
                     `;
                     createConfetti(confettiContainer);
                     input.disabled = true;
@@ -461,11 +461,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Wrong answer - show encouragement and reveal answer
                     const randomMessage = encouragingMessages[Math.floor(Math.random() * encouragingMessages.length)];
                     result.innerHTML = `
-                         3cdiv class="wrong-answer">
-                             3cdiv class="encouragement">${randomMessage}</div>
-                             3cdiv class="answer-reveal">The answer is:  3cstrong>${riddle.answer}</strong></div>
-                             3cdiv class="motivation">Keep practicing - you're getting smarter! 🧠💫</div>
-                         3c/div>
+                        <div class="wrong-answer">
+                            <div class="encouragement">${randomMessage}</div>
+                            <div class="answer-reveal">The answer is: <strong>${riddle.answer}</strong></div>
+                            <div class="motivation">Keep practicing - you're getting smarter! 🧠💫</div>
+                        </div>
                     `;
                     input.disabled = true;
                 }
